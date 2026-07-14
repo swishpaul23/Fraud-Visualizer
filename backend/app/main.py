@@ -12,9 +12,8 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from app.api.routes import router as decision_router
-from app.logging_config import configure_logging
 
-configure_logging()
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("fraud_visualizer")
 
 app = FastAPI(

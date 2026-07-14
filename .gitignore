@@ -11,3 +11,6 @@ __pycache__
 *.pywzz
 *.pyzzz
 *.pywzzz
+
+# CLAUDE APP
+CLAUDE.md
