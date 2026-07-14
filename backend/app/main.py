@@ -6,6 +6,7 @@ routes, CORS policy, and exception handling. Contains no business logic.
 import logging
 
 from fastapi import FastAPI, Request
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -47,7 +48,10 @@ async def validation_error_handler(
     logger.warning("request_validation_failed", extra={"path": request.url.path})
     return JSONResponse(
         status_code=422,
-        content={"error": "invalid_transaction_input", "detail": exc.errors()},
+        content={
+            "error": "invalid_transaction_input",
+            "detail": jsonable_encoder(exc.errors()),
+        },
     )
 
 

@@ -1,0 +1,79 @@
+"""
+Tests for run_decision() against a small set of canonical paths:
+all-pass, and a failure injected at each of three different points in
+the registry (ingress, geo, velocity). These are the paths that would
+catch a chain-ordering or short-circuit regression; the full
+combinatorial space of check outcomes is deliberately not covered.
+"""
+
+from datetime import datetime, timedelta, timezone
+
+from app.engine.runner import run_decision
+from app.models.trace import Decision, NodeStatus
+
+from tests.conftest import make_transaction
+
+_SKIPPED_REASON = "skipped after an earlier check failed"
+
+
+def test_all_checks_pass_yields_approve():
+    tx = make_transaction()
+
+    trace = run_decision(tx)
+
+    assert trace.decision == Decision.APPROVE
+    assert [node.status for node in trace.nodes] == [NodeStatus.PASSED] * 5
+
+
+def test_fail_at_ingress_skips_every_downstream_node():
+    stale = datetime.now(timezone.utc) - timedelta(minutes=30)
+    tx = make_transaction(timestamp=stale)
+
+    trace = run_decision(tx)
+    nodes = {node.node_id: node for node in trace.nodes}
+
+    assert trace.decision == Decision.DECLINE
+
+    assert nodes["ingress"].status == NodeStatus.FAILED
+    assert nodes["ingress"].reason == (
+        "transaction timestamp is older than the allowed staleness window"
+    )
+
+    for node_id in ("geo", "proxy", "velocity", "resolution"):
+        assert nodes[node_id].status == NodeStatus.SKIPPED
+        assert nodes[node_id].reason == _SKIPPED_REASON
+
+
+def test_fail_at_geo_leaves_ingress_passed_and_skips_downstream():
+    tx = make_transaction(ip_country="RU", billing_country="US", shipping_country="CA")
+
+    trace = run_decision(tx)
+    nodes = {node.node_id: node for node in trace.nodes}
+
+    assert trace.decision == Decision.DECLINE
+    assert nodes["ingress"].status == NodeStatus.PASSED
+
+    assert nodes["geo"].status == NodeStatus.FAILED
+    assert nodes["geo"].reason == "ip, billing, and shipping countries all disagree"
+
+    for node_id in ("proxy", "velocity", "resolution"):
+        assert nodes[node_id].status == NodeStatus.SKIPPED
+        assert nodes[node_id].reason == _SKIPPED_REASON
+
+
+def test_fail_at_velocity_leaves_earlier_nodes_passed_and_skips_resolution():
+    tx = make_transaction(transactions_from_account_1h=6)
+
+    trace = run_decision(tx)
+    nodes = {node.node_id: node for node in trace.nodes}
+
+    assert trace.decision == Decision.DECLINE
+    assert nodes["ingress"].status == NodeStatus.PASSED
+    assert nodes["geo"].status == NodeStatus.PASSED
+    assert nodes["proxy"].status == NodeStatus.PASSED
+
+    assert nodes["velocity"].status == NodeStatus.FAILED
+    assert nodes["velocity"].reason == "account exceeded max transactions in the last hour"
+
+    assert nodes["resolution"].status == NodeStatus.SKIPPED
+    assert nodes["resolution"].reason == _SKIPPED_REASON
