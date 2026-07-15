@@ -19,3 +19,7 @@ CLAUDE.md
 frontend/node_modules
 frontend/dist
 frontend/*.tsbuildinfo
+
+# EVAL (generated reports, not source)
+backend/eval/eval_report.md
+backend/eval/eval_report.json
