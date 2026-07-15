@@ -72,6 +72,22 @@ def _random_account_age_days(rng: random.Random) -> int:
     return int(rng.triangular(7, 2000, 1400))
 
 
+def _random_amount(rng: random.Random) -> Decimal:
+    """
+    Skewed toward small transactions (most real transactions are small)
+    but with a tail reaching well past the amount_risk threshold
+    (app/engine/checks/amount_risk.py: > 5000) in both directions, so the
+    eval can measure that check's actual precision/recall contribution
+    instead of just confirming it fires. rng.random() ** 4 concentrates
+    most mass under ~2000 while still putting ~30% of rows above 5000 —
+    verified empirically (see eval_report_after.md) to land well clear of
+    both a near-0% and a near-100% fired rate.
+    """
+    dollars = (rng.random() ** 4) * 20_000
+    cents = max(100, int(dollars * 100))  # floor at $1.00, amount must be > 0
+    return Decimal(cents) / Decimal(100)
+
+
 def generate_transaction(rng: random.Random, idx: int) -> TransactionInput:
     transactions_from_account_1h = rng.randint(0, 10)
     transactions_from_account_24h = transactions_from_account_1h + rng.randint(0, 10)
@@ -83,7 +99,7 @@ def generate_transaction(rng: random.Random, idx: int) -> TransactionInput:
         # distinct_accounts_on_device_24h only mean something in
         # relation to shared accounts/devices, not fully independent rows.
         account_id=f"acct-{rng.randint(0, 5000)}",
-        amount=Decimal(rng.randint(100, 500_000)) / Decimal(100),
+        amount=_random_amount(rng),
         currency=rng.choice(_CURRENCY_POOL),
         # Kept within the engine's own freshness tolerance (15 min stale /
         # 5 min future — see app/engine/checks/ingress.py). A wider spread

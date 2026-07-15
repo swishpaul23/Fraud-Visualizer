@@ -9,22 +9,22 @@ not access to real fraud labels.
 
 |                | GT: BLOCK | GT: ALLOW |
 |----------------|-----------|-----------|
-| **Engine: BLOCK** | 790 (TP) | 160 (FP) |
-| **Engine: ALLOW** | 12 (FN) | 38 (TN) |
+| **Engine: BLOCK** | 806 (TP) | 148 (FP) |
+| **Engine: ALLOW** | 9 (FN) | 37 (TN) |
 
 ## Metrics
 
-- Precision: **83.2%**
-- Recall: **98.5%**
-- False positive rate: **80.8%**
-- F1: **0.902**
-- Overall agreement (accuracy): **82.8%**
+- Precision: **84.5%**
+- Recall: **98.9%**
+- False positive rate: **80.0%**
+- F1: **0.911**
+- Overall agreement (accuracy): **84.3%**
 
 ## Top missed risk cases (false negatives)
 
 Transactions the independent heuristic scored as high-risk that
 the engine allowed through — these point at concrete rule gaps.
 
-- `txn-602-779055` (account `acct-4926`) — risk_score=7, distinct_accounts_on_device_24h=1, account_age_days=765, ground_truth=BLOCK, engine=ALLOW
-- `txn-622-553348` (account `acct-3542`) — risk_score=7, distinct_accounts_on_device_24h=3, account_age_days=1473, ground_truth=BLOCK, engine=ALLOW
-- `txn-796-661104` (account `acct-174`) — risk_score=7, distinct_accounts_on_device_24h=0, account_age_days=1740, ground_truth=BLOCK, engine=ALLOW
+- `txn-8-943313` (account `acct-4239`) — risk_score=12, distinct_accounts_on_device_24h=3, account_age_days=0, ground_truth=BLOCK, engine=ALLOW
+- `txn-213-432459` (account `acct-2892`) — risk_score=8, distinct_accounts_on_device_24h=3, account_age_days=871, ground_truth=BLOCK, engine=ALLOW
+- `txn-435-595130` (account `acct-2190`) — risk_score=8, distinct_accounts_on_device_24h=3, account_age_days=1587, ground_truth=BLOCK, engine=ALLOW
