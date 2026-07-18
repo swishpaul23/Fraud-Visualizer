@@ -1,16 +1,18 @@
 import type { DecisionTrace, TransactionInput } from "../types/trace.gen";
 
 /**
- * Backend origin, overridable via VITE_API_BASE_URL. The API is on a
- * different origin than the Vite dev server (CORS-allowlisted in
- * backend/app/main.py), so this can't be a bare relative path.
- */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
-
-/**
+ * In production, frontend and backend are served from the same Vercel
+ * deployment (see /vercel.json at the repo root) — same origin, so a
+ * relative path is all that's needed. In local dev, Vite (5173) and
+ * uvicorn (8000) are still two separate processes (CORS-allowlisted in
+ * backend/app/main.py), so dev builds point at the backend explicitly.
+ * import.meta.env.DEV is Vite's own dev-vs-prod build flag — nothing to
+ * configure by hand, nothing to forget to set.
+ *
  * Note: the implemented backend route is POST /api/v1/decisions (see
  * backend/app/api/routes.py), not /api/v1/decide.
  */
+const API_BASE_URL = import.meta.env.DEV ? "http://localhost:8000" : "";
 const DECIDE_PATH = "/api/v1/decisions";
 
 /**

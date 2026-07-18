@@ -29,7 +29,7 @@ def test_decisions_route_happy_path_returns_approve():
     assert response.status_code == 200
     body = response.json()
     assert body["decision"] == "APPROVE"
-    assert len(body["nodes"]) == 5
+    assert len(body["nodes"]) == 6
 
 
 def test_decisions_route_rejects_negative_amount_with_422():

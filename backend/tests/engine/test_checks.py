@@ -6,6 +6,7 @@ runner, no HTTP layer involved.
 
 from datetime import datetime, timedelta, timezone
 
+from app.engine.checks.amount_risk import check_amount_risk
 from app.engine.checks.geo import check_geo
 from app.engine.checks.ingress import check_ingress
 from app.engine.checks.proxy import check_proxy
@@ -100,6 +101,26 @@ def test_velocity_fails_when_hourly_transaction_count_exceeded():
 
     assert passed is False
     assert reason == "account exceeded max transactions in the last hour"
+
+
+# --- amount_risk ----------------------------------------------------------------
+
+def test_amount_risk_passes_within_limits():
+    tx = make_transaction(amount="19.99")
+
+    passed, reason, metadata = check_amount_risk(tx)
+
+    assert passed is True
+    assert reason == "transaction amount is within accepted limits"
+
+
+def test_amount_risk_fails_above_threshold():
+    tx = make_transaction(amount="5000.01")
+
+    passed, reason, metadata = check_amount_risk(tx)
+
+    assert passed is False
+    assert reason == "transaction amount exceeds the high-value threshold"
 
 
 # --- resolution ----------------------------------------------------------------
