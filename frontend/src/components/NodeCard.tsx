@@ -24,7 +24,7 @@ export function NodeCard({ id, data }: NodeProps<SelectableTraceNode>) {
 
   return (
     <div
-      className={`w-48 cursor-pointer rounded-lg border-2 px-3 py-2 shadow-sm ${statusClass(status)}`}
+      className={`w-48 cursor-pointer rounded-lg border-2 px-3 py-2 shadow-sm transition-shadow duration-200 ease-out hover:shadow-lg motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out motion-safe:hover:scale-[1.02] ${statusClass(status)}`}
       onClick={() => onSelect?.(id)}
     >
       <Handle type="target" position={Position.Left} />

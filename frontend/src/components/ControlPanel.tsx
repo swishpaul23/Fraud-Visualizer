@@ -72,12 +72,12 @@ export function ControlPanel({ onChange }: ControlPanelProps) {
   }
 
   return (
-    <div className="flex w-72 flex-col gap-4 border-r border-gray-200 p-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">
+    <div className="flex w-80 flex-col gap-4 border-r border-gray-200 bg-gray-50 p-4 shadow-sm">
+      <h2 className="text-base font-semibold uppercase tracking-wide text-gray-500">
         Transaction controls
       </h2>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1 text-base">
         Amount (USD)
         <input
           type="number"
@@ -89,7 +89,7 @@ export function ControlPanel({ onChange }: ControlPanelProps) {
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-base">
         <input
           type="checkbox"
           checked={state.isKnownProxy}
@@ -98,7 +98,7 @@ export function ControlPanel({ onChange }: ControlPanelProps) {
         Known VPN / proxy IP
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1 text-base">
         Transactions in last hour: {state.transactionsFromAccount1h}
         <input
           type="range"
@@ -109,7 +109,7 @@ export function ControlPanel({ onChange }: ControlPanelProps) {
         />
       </label>
 
-      <label className="flex items-center gap-2 text-sm">
+      <label className="flex items-center gap-2 text-base">
         <input
           type="checkbox"
           checked={state.geoMismatch}
@@ -118,7 +118,7 @@ export function ControlPanel({ onChange }: ControlPanelProps) {
         Billing / shipping / IP country mismatch
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
+      <label className="flex flex-col gap-1 text-base">
         Accounts sharing this device (24h): {state.distinctAccountsOnDevice24h}
         <input
           type="range"

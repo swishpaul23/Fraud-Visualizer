@@ -1,6 +1,6 @@
-import { ReactFlow, type NodeTypes } from "@xyflow/react";
+import { Background, ReactFlow, type NodeTypes, type ReactFlowInstance } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { traceToFlow } from "./traceToFlow";
 import { NodeCard, type SelectableTraceNodeData } from "../components/NodeCard";
 import type { DecisionTrace } from "../types/trace.gen";
@@ -26,9 +26,28 @@ export function GraphCanvas({ trace, onSelect }: GraphCanvasProps) {
     [nodes, onSelect],
   );
 
+  // fitView only on the true first load of this ReactFlow instance —
+  // onInit fires once per mount, never again on subsequent node/edge
+  // prop updates, so a control change never yanks the user's zoom/pan
+  // back to a fitted view.
+  const hasFitOnce = useRef(false);
+
+  function handleInit(instance: ReactFlowInstance<Node<SelectableTraceNodeData>>) {
+    if (hasFitOnce.current) return;
+    hasFitOnce.current = true;
+    instance.fitView();
+  }
+
   return (
     <div className="h-full w-full">
-      <ReactFlow nodes={selectableNodes} edges={edges} nodeTypes={NODE_TYPES} />
+      <ReactFlow
+        nodes={selectableNodes}
+        edges={edges}
+        nodeTypes={NODE_TYPES}
+        onInit={handleInit}
+      >
+        <Background gap={16} size={1} color="#e5e5e5" />
+      </ReactFlow>
     </div>
   );
 }
